@@ -88,20 +88,6 @@ The lab is distributed across two physical systems:
 
 <br/>
 
-<h2>Example Outputs</h2>
-
-<p align="center">
-<img src="assets/topology-diagram.png" width="80%" alt="SOC Network Topology"/>
-<br/><i>Figure 1: Network topology showing segmentation and SIEM placement.</i>
-</p>
-
-<p align="center">
-<img src="assets/wazuh-dashboard.png" width="80%" alt="Wazuh Dashboard"/>
-<br/><i>Figure 2: Wazuh dashboard with active agent alerts and event correlation.</i>
-</p>
-
-<br/>
-
 <h2>Future Enhancements</h2>
 
 <ul>
@@ -131,5 +117,4 @@ The lab is distributed across two physical systems:
 <p>
 📎 <a href="https://www.linkedin.com/in/iangoodman13/">LinkedIn</a>  
 <br/>
-📧 <a href="mailto:iangoodman.cybersec@gmail.com">iangoodman.cybersec@gmail.com</a>
 </p>

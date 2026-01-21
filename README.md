@@ -1,120 +1,101 @@
-<h1>SOC-in-a-Box Homelab</h1>
+# SOC-in-a-Box Homelab
 
-<h2>Description</h2>
-<p>
-The <b>SOC-in-a-Box Homelab</b> is a fully virtualized, two-system cybersecurity environment designed to simulate real-world <b>Security Operations Center (SOC)</b> functions.
-This project demonstrates the process of designing, deploying, and operating a complete Blue-Team monitoring infrastructure using <b>Proxmox</b>, <b>OPNsense</b>, <b>Wazuh</b>, and multiple virtual machines that generate authentic network and security events.
-</p>
+## Description
 
-<p>
+The **SOC-in-a-Box Homelab** is a fully virtualized, two-system cybersecurity environment designed to simulate real-world **Security Operations Center (SOC)** operations.
+
+This project demonstrates the design, deployment, and operation of a complete **Blue Team monitoring infrastructure** using **Proxmox**, **OPNsense**, **Wazuh**, and multiple virtual machines that generate realistic network and security events.
+
 The lab is distributed across two physical systems:
-</p>
 
-<ul>
-  <li><b>Proxmox Server</b> – Hosts the core SOC infrastructure, including OPNsense (firewall/router) and Wazuh (SIEM) within isolated VLANs.</li>
-  <li><b>Main Homelab Workstation</b> – Runs the operational environment consisting of Windows, Linux, and vulnerable machines to simulate user activity, attacks, and alerts.</li>
-</ul>
+- **Proxmox Server** – Hosts the core SOC infrastructure, including OPNsense (firewall/router) and Wazuh (SIEM) within isolated networks.
+- **Main Homelab Workstation** – Runs the operational environment consisting of Windows, Linux, and vulnerable machines to simulate user activity, attacks, and alerts.
 
-<br/>
+---
 
-<h2>Architecture Overview</h2>
+## Architecture Overview
 
-<ul>
-  <li><b>Firewall / Router:</b> OPNsense (running on Proxmox)</li>
-  <li><b>SIEM:</b> Wazuh (manager, indexer, and dashboard)</li>
-  <li><b>Endpoints & Attack VMs:</b> Kali Linux, Metasploitable 2, Chronos 1</li>
-  <li><b>Windows Environment:</b> Windows Server 2022 (AD), Windows 10 Client 1 & 2 (domain joined)</li>
-  <li><b>Network Monitoring:</b> Zeek, Sysmon, and Wireshark for packet and event inspection</li>
-</ul>
+- **Firewall / Router:** OPNsense (virtualized on Proxmox)
+- **SIEM:** Wazuh (manager, indexer, and dashboard)
+- **Endpoints & Attack VMs:** Kali Linux, Metasploitable 2, Chronos 1
+- **Windows Environment:** Windows Server 2022 (Active Directory), Windows 10 Client 1 & 2 (domain joined)
+- **Network Monitoring & Analysis:** Zeek, Sysmon, Wireshark
 
-<br/>
+---
 
-<h2>Project Objectives</h2>
+## Project Objectives
 
-<ul>
-  <li>Deploy OPNsense within Proxmox to segment and route lab VLANs</li>
-  <li>Integrate all endpoints with Wazuh for centralized log collection and alerting</li>
-  <li>Simulate attack traffic using Kali, Metasploitable, and Chronos 1</li>
-  <li>Observe detections, tune rules, and document the alerting process</li>
-  <li>Visualize data through Wazuh dashboards and custom visualizations</li>
-</ul>
+- Deploy OPNsense within Proxmox to segment and route lab networks
+- Integrate all endpoints with Wazuh for centralized log collection and alerting
+- Simulate attack traffic using Kali, Metasploitable, and Chronos 1
+- Observe detections, tune rules, and document alert workflows
+- Visualize security telemetry through Wazuh dashboards and custom visualizations
 
-<br/>
+---
 
-<h2>Environment Summary</h2>
+## Environment Summary
 
-<ul>
-  <li><b>System 1 (Proxmox Host)</b>
-    <ul>
-      <li>OPNsense – Virtualized firewall/router</li>
-      <li>Wazuh SIEM – Manager, Indexer, and Dashboard</li>
-    </ul>
-  </li>
+### System 1 — Proxmox Host
+- **OPNsense** – Virtualized firewall and router
+- **Wazuh SIEM** – Manager, Indexer, and Dashboard
 
-  <li><b>System 2 (Main Homelab Workstation)</b>
-    <ul>
-      <li>Kali Linux – Attack simulation and testing</li>
-      <li>Metasploitable 2 – Vulnerable target for exploits</li>
-      <li>Chronos 1 – Additional vulnerable instance</li>
-      <li>Windows Server 2022 – Active Directory, DNS, DHCP</li>
-      <li>Windows 10 Client 1 – Domain-joined workstation</li>
-      <li>Windows 10 Client 2 – Secondary workstation for activity simulation</li>
-    </ul>
-  </li>
-</ul>
+### System 2 — Main Homelab Workstation
+- **Kali Linux** – Attack simulation and testing
+- **Metasploitable 2** – Vulnerable target for exploit development
+- **Chronos 1** – Additional intentionally vulnerable system
+- **Windows Server 2022** – Active Directory, DNS, DHCP
+- **Windows 10 Client 1** – Domain-joined workstation
+- **Windows 10 Client 2** – Secondary workstation for activity simulation
 
-<br/>
+---
 
-<h2>Technologies Used</h2>
+## Technologies Used
 
-<ul>
-  <li><b>Virtualization:</b> Proxmox VE</li>
-  <li><b>Firewall & Routing:</b> OPNsense</li>
-  <li><b>SIEM:</b> Wazuh (Manager, Dashboard, Indexer)</li>
-  <li><b>Analysis Tools:</b> Zeek, Wireshark, Sysmon, Sigma Rules</li>
-  <li><b>Operating Systems:</b> Windows Server 2022, Windows 10, Kali Linux, Metasploitable 2, Chronos 1</li>
-</ul>
+- **Virtualization:** Proxmox VE
+- **Firewall & Routing:** OPNsense
+- **SIEM:** Wazuh (Manager, Indexer, Dashboard)
+- **Analysis Tools:** Zeek, Wireshark, Sysmon, Sigma Rules
+- **Operating Systems:**  
+  Windows Server 2022, Windows 10, Kali Linux, Metasploitable 2, Chronos 1
 
-<br/>
+---
 
-<h2>Project Breakdown</h2>
+## Project Breakdown
 
-<ol>
-  <li><b>Part 1 – Infrastructure Setup:</b> Configure Proxmox, deploy OPNsense and Wazuh, establish VLANs.</li>
-  <li><b>Part 2 – Endpoint & Domain Configuration:</b> Build Windows AD domain, connect clients, and configure vulnerable VMs.</li>
-  <li><b>Part 3 – Attack Simulation & Detection:</b> Simulate attacks, monitor Wazuh alerts, and analyze logs.</li>
-  <li><b>Part 4 – Visualization & Reporting:</b> Create dashboards, correlate alerts, and document incidents.</li>
-</ol>
+1. **[Part 1 – Infrastructure Setup](part-1_infrastructure-setup/)**  
+   Configure Proxmox, deploy OPNsense and Wazuh, and establish internal networks.
 
-<br/>
+2. **Part 2 – Endpoint & Domain Configuration**  
+   Build a Windows Active Directory domain, connect clients, and configure vulnerable systems.
 
-<h2>Future Enhancements</h2>
+3. **Part 3 – Attack Simulation & Detection**  
+   Simulate adversarial activity, monitor Wazuh alerts, and analyze security logs.
 
-<ul>
-  <li>Integrate Elastic Stack or Graylog for multi-SIEM comparison</li>
-  <li>Add Security Onion as a passive NIDS sensor</li>
-  <li>Implement TheHive/Cortex for incident ticketing and enrichment</li>
-  <li>Map detections to MITRE ATT&CK techniques</li>
-  <li>Automate log forwarding using Winlogbeat and Filebeat</li>
-</ul>
+4. **Part 4 – Visualization & Reporting**  
+   Create dashboards, correlate alerts, and document incident response workflows.
 
-<br/>
+---
 
-<h2>Learning Outcomes</h2>
+## Future Enhancements
 
-<ul>
-  <li>Design and secure virtual SOC infrastructure using Proxmox and OPNsense</li>
-  <li>Deploy and manage a Wazuh SIEM for centralized log analysis</li>
-  <li>Simulate adversarial activity and detect malicious behavior in real time</li>
-  <li>Build detection dashboards and analyze alert pipelines</li>
-  <li>Develop Blue Team reporting and incident documentation skills</li>
-</ul>
+- Integrate Elastic Stack or Graylog for multi-SIEM comparison
+- Add Security Onion as a passive NIDS sensor
+- Implement TheHive/Cortex for incident ticketing and enrichment
+- Map detections to MITRE ATT&CK techniques
+- Automate log forwarding using Winlogbeat and Filebeat
 
-<br/>
+---
 
-<h2>Connect</h2>
+## Learning Outcomes
 
-<p>
-📎 <a href="https://www.linkedin.com/in/iangoodman13/">LinkedIn</a>  
-<br/>
-</p>
+- Design and secure virtual SOC infrastructure using Proxmox and OPNsense
+- Deploy and manage a Wazuh SIEM for centralized log analysis
+- Simulate adversarial behavior and detect malicious activity in real time
+- Build detection dashboards and analyze alert pipelines
+- Develop Blue Team reporting and incident documentation skills
+
+---
+
+## Connect
+
+🔗 [LinkedIn](https://www.linkedin.com/in/iangoodman13/)

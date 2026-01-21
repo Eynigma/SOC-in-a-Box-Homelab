@@ -62,16 +62,16 @@ The lab is distributed across two physical systems:
 
 ## Project Breakdown
 
-1. **[Part 1 – Infrastructure Setup](part-1_infrastructure-setup/)**  
+1. **[Part 1 – Infrastructure Setup](part-1_infrastructure-setup/)** *(In Progress)* 
    Configure Proxmox, deploy OPNsense and Wazuh, and establish internal networks.
 
-2. **Part 2 – Endpoint & Domain Configuration**  
+2. **Part 2 – Endpoint & Domain Configuration** *(Planned)* 
    Build a Windows Active Directory domain, connect clients, and configure vulnerable systems.
 
-3. **Part 3 – Attack Simulation & Detection**  
+3. **Part 3 – Attack Simulation & Detection** *(Planned)* 
    Simulate adversarial activity, monitor Wazuh alerts, and analyze security logs.
 
-4. **Part 4 – Visualization & Reporting**  
+4. **Part 4 – Visualization & Reporting** *(Planned)* 
    Create dashboards, correlate alerts, and document incident response workflows.
 
 ---

@@ -1,0 +1,1 @@
+- **Phase 0:** [Proxmox Foundation & Secure Management Access](part-1-infrastructure-setup/phase-0-proxmox-foundation.md)

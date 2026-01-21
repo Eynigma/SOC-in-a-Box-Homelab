@@ -13,7 +13,7 @@ Establishes a stable and secure baseline for the Proxmox hypervisor, including c
 routing, and restricted management access.
 
 ➡️ **Documentation:**  
-[Phase 0 – Proxmox Foundation & Secure Management Access](phase-0-proxmox-foundation.md)
+[Phase 0 – Proxmox Foundation & Secure Management Access](phase-0_proxmox-foundation.md)
 
 ---
 

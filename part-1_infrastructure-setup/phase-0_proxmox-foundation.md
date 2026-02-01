@@ -9,10 +9,10 @@ All subsequent firewall, SIEM, and detection components depend on this baseline 
 
 ## Network Context
 
-- **Home Network:** 192.168.1.0/24
 - **Lab Network:** 192.168.10.0/24
-- **Proxmox Management IP:** 192.168.10.8
-- **Proxmox Web Interface:** https://192.168.10.8:8006
+- **Management Network:** 192.168.99.0/24
+- **Proxmox Management IP:** 192.168.99.50
+- **Proxmox Web Interface:** https://192.168.99.50:8006
 
 ---
 
@@ -46,8 +46,8 @@ The Proxmox networking configuration was simplified to a single management bridg
 
 - **Bridge:** vmbr0
 - **Physical NIC:** eno1
-- **IP Address:** 192.168.10.8/24
-- **Gateway:** 192.168.10.1
+- **IP Address:** 192.168.99.50/24
+- **Gateway:** 192.168.99.1
 
 Routing was restored and validated using `ip route`, and Proxmox management access from the Home network was confirmed.
 

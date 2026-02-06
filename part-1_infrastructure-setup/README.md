@@ -86,6 +86,12 @@ Exact VLAN IDs and subnets are documented here for reproducibility.
 
 ## OPNsense VirtualBox Deployment
 
+### Evidence
+![VirtualBox adapters](assets/vbox_opnsense_adapter1.png)
+![VirtualBox adapters](assets/vbox_opnsense_adapter2.png)
+![SATA controller](assets/vbox_opnsense_storage_sata.png)
+
+
 ### VM Hardware (Required for Stability)
 - Disk Controller: SATA (AHCI)
 - Disk Size: 32 GB (recommended for stability)

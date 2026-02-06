@@ -57,7 +57,8 @@ Exact VLAN IDs and subnets are documented here for reproducibility.
 
 ## Switch Port Roles
 
-This section is intentionally explicit because incorrect uplink tagging was the root cause of early issues.
+### Evidence (VLAN Membership Table)
+![Switch VLAN membership showing trunk and access behavior](assets/SwitchVLANsettings.png)
 
 ### Uplink Port to Router (Trunk)
 - Port: 1

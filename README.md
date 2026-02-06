@@ -10,15 +10,15 @@ The lab is intentionally built in phases, with each stage documenting both succe
 
 The environment is distributed across two physical systems:
 
-- **Firewall & SOC Infrastructure Host** – Runs the virtualized perimeter firewall and SOC monitoring services.
-- **Main Homelab Workstation** – Hosts attacker, defender, and vulnerable systems used to generate realistic security telemetry.
+- **Proxmox Server** – Hosts core SOC infrastructure services (SIEM and security tooling) on isolated networks.
+- **Main Homelab Workstation** – Runs the operational environment (attack and target VMs) and the perimeter firewall VM to simplify connectivity while maintaining segmentation.
 
 ---
 
 ## Architecture Overview
 
 - **Firewall / Router:** OPNsense (virtualized)
-- **SIEM / Log Platform:** Wazuh (planned integration)
+- **SIEM:** Wazuh (planned on Proxmox: manager, indexer, and dashboard)
 - **Endpoints & Attack VMs:** Kali Linux, vulnerable Linux targets
 - **Windows Environment:** Windows systems planned for later phases
 - **Network Visibility & Analysis:** Firewall logs, host logs, packet analysis
@@ -63,7 +63,7 @@ The environment is distributed across two physical systems:
 - **Virtualization:** VirtualBox, Proxmox (planned expansion)
 - **Firewall & Routing:** OPNsense
 - **Networking:** VLANs, managed switch configuration
-- **SIEM:** Wazuh *(integration in progress)*
+- **SIEM:** Wazuh (Manager, Indexer, Dashboard)
 - **Analysis Tools:** Packet capture, firewall logging
 - **Operating Systems:**  
   OPNsense, Kali Linux, Linux targets, Windows (planned)

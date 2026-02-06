@@ -122,8 +122,8 @@ Logging in as root boots Live Mode (no disk install, no persistence).
 - Adapter 2 (LAN): Internal Network → OPNsense_lan
 
 ### Interface Assignment (OPNsense)
-- WAN → vtnet0
-- LAN → vtnet1
+- WAN → em0
+- LAN → em1
 
 ### LAN Addressing (Configured)
 - LAN IP: 192.168.20.1/24

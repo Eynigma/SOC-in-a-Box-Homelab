@@ -57,8 +57,6 @@ Exact VLAN IDs and subnets are documented here for reproducibility.
 
 ## Switch Port Roles
 
-## Switch Port Roles
-
 <details>
 <summary>Evidence: Switch VLAN trunk/access configuration</summary>
 

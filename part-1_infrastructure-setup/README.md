@@ -2,7 +2,7 @@
 
 ## Description
 
-Part 1 establishes the **foundation** of the SOC-in-a-Box Homelab by implementing correct **segmentation, switching behavior, and firewall placement**.
+Part 1 establishes the foundation of the SOC-in-a-Box Homelab by implementing correct segmentation, switching behavior, and firewall placement.
 
 This phase focuses on building a stable base that behaves like a real environment:
 - clean WAN/LAN separation
@@ -27,145 +27,155 @@ This phase also documents the real troubleshooting steps required to reach a sta
 
 ## Architecture (Part 1 Scope)
 
-- **Router:** UCG-Ultra (VLANs defined here, details below)
-- **Switch:** Managed switch enforcing VLAN trunk/access roles
-- **Firewall:** OPNsense in VirtualBox on the Main Homelab Workstation
-- **SOC Host:** Proxmox Server reserved for Wazuh and SOC services (Part 2)
+- Router: UCG-Ultra (VLANs defined here)
+- Switch: Managed switch enforcing VLAN trunk/access roles
+- Firewall: OPNsense in VirtualBox on the Main Homelab Workstation
+- SOC Host: Proxmox Server reserved for Wazuh and SOC services (Part 2)
 
 ---
 
 ## VLANs and Networks
 
-> Exact VLAN IDs and subnets are documented here for reproducibility.
-> (Main project README stays high-level.)
+Exact VLAN IDs and subnets are documented here for reproducibility.
+(Main project README stays high-level.)
 
-### VLAN List (Fill-in / Confirmed)
-- **VLAN 1 – Home / Management:** `__________________`
-- **VLAN 10 – Lab Ingress (Firewall WAN):** `__________________`
-- **VLAN 20 – Internal Lab (Firewall LAN):** `__________________`
-- **VLAN 30 – Cyber Range / Targets:** `__________________`
-- **VLAN 40 – Windows / AD Lab:** `__________________`
-- **VLAN 50 – Security / SOC Services:** `__________________`
+### VLAN List (Confirmed)
+- VLAN 1 – Home / Management: 192.168.1.0/24 (GW 192.168.1.1)
+- VLAN 10 – Lab Ingress (Firewall WAN): 192.168.10.0/24 (GW 192.168.10.1)
+- VLAN 20 – Internal Lab (Firewall LAN): 192.168.20.0/24 (GW 192.168.20.1)
+- VLAN 30 – Cyber Range / Targets: 192.168.30.0/24 (planned)
+- VLAN 40 – Windows / AD Lab: 192.168.40.0/24 (planned)
+- VLAN 50 – Security / SOC Services: 192.168.50.0/24 (planned)
 
 ### DHCP
-- VLAN 10 DHCP source: `__________________`
-- VLAN 20 DHCP source: `OPNsense` (LAN-side DHCP enabled)
-- Additional VLAN DHCP strategy (planned): `__________________`
+- VLAN 1 DHCP source: UCG-Ultra (default LAN DHCP)
+- VLAN 10 DHCP source: UCG-Ultra (Lab VLAN DHCP enabled)
+- VLAN 20 DHCP source: OPNsense (LAN-side DHCP enabled)
+- VLANs 30/40/50 DHCP strategy: planned (likely OPNsense per-segment or UCG-Ultra depending on final routing design)
 
 ---
 
 ## Switch Port Roles
 
-> This section is intentionally explicit because incorrect uplink tagging was the root cause of early issues.
+This section is intentionally explicit because incorrect uplink tagging was the root cause of early issues.
 
 ### Uplink Port to Router (Trunk)
-- **Port:** `__________________`
-- **VLAN 1:** Untagged (native)
-- **VLANs 10/20/30/40/50:** Tagged
-- **PVID:** 1
+- Port: 1
+- VLAN 1: Untagged (native)
+- VLANs 10/20/30/40/50: Tagged
+- PVID: 1
 
 ### Workstation Second NIC (Access Port for Lab Ingress)
-- **Port:** `__________________`
-- **VLAN 10:** Untagged
-- **VLAN 1:** Not untagged
-- **PVID:** 10
+- Port: 7
+- VLAN 10: Untagged
+- VLAN 1: Not untagged
+- PVID: 10
+
+### Workstation Primary NIC (Home / Management)
+- Port: 3 (home access port)
+- VLAN 1: Untagged
+- PVID: 1
 
 ### Notes
 - End devices must be untagged on one VLAN (access) unless the endpoint is VLAN-aware
 - Tagging VLAN 1 on the router uplink caused VLAN leakage and incorrect DHCP behavior (192.168.1.x symptom)
+- The correct model is: VLAN 1 untagged on uplink, lab VLANs tagged on uplink
 
 ---
 
 ## OPNsense VirtualBox Deployment
 
 ### VM Hardware (Required for Stability)
-- **Disk Controller:** SATA (AHCI)
-- **Disk Size:** 20–32 GB (recommended 32 GB)
-- **Why:** IDE controller caused filesystem read-only state and config loss on reboot
+- Disk Controller: SATA (AHCI)
+- Disk Size: 32 GB (recommended for stability)
+- Why: IDE controller caused filesystem read-only state and config loss on reboot
 
 ### Installation Mode (Important)
-- To install to disk from ISO:
-  - login: `installer`
-  - password: `opnsense`
-- Logging in as `root` boots **Live Mode** (no disk install, no persistence)
+To install to disk from ISO:
+- login: installer
+- password: opnsense
+
+Logging in as root boots Live Mode (no disk install, no persistence).
 
 ---
 
 ## OPNsense Network Interfaces
 
 ### Adapter Layout
-- **Adapter 1 (WAN):** Bridged Adapter → Workstation **second NIC** (connected to VLAN 10 access port)
-- **Adapter 2 (LAN):** Internal Network → `OPNsense_lan`
+- Adapter 1 (WAN): Bridged Adapter → Workstation second NIC (connected to Switch Port 7 on VLAN 10 access)
+- Adapter 2 (LAN): Internal Network → OPNsense_lan
 
 ### Interface Assignment (OPNsense)
-- WAN → `vtnet0`
-- LAN → `vtnet1`
+- WAN → vtnet0
+- LAN → vtnet1
 
-### LAN Addressing
-- LAN IP: `__________________` (example: 192.168.20.1/24)
+### LAN Addressing (Configured)
+- LAN IP: 192.168.20.1/24
 - DHCP on LAN: Enabled
-- DHCP range: `__________________`
+- DHCP range: 192.168.20.100 – 192.168.20.200
 
 ---
 
 ## Validation Checklist
 
 ### VLAN / DHCP Validation
-- Workstation second NIC pulls VLAN 10 addressing correctly (or remains isolated as expected)
-- OPNsense WAN receives an IP from VLAN 10 DHCP
-- OPNsense LAN is static and does not pull from VLAN 1
+- Workstation second NIC is isolated to VLAN 10 (port 7 access behavior)
+- OPNsense WAN receives a 192.168.10.x IP from VLAN 10 DHCP (GW 192.168.10.1)
+- OPNsense LAN is static at 192.168.20.1 and does not pull from VLAN 1
 
 ### Persistence Validation (Critical)
 - Reboot OPNsense VM
 - Confirm:
-  - Interface assignments remain correct
-  - LAN IP remains correct
-  - No filesystem read-only behavior
-  - Config persists across reboots
+  - interface assignments remain correct (WAN vtnet0 / LAN vtnet1)
+  - LAN IP remains 192.168.20.1
+  - settings persist across reboot
 
 ### Test VM Validation
-- Attach a test VM to `OPNsense_lan`
+- Attach a test VM to Internal Network: OPNsense_lan
 - Confirm:
-  - receives LAN DHCP
-  - can ping OPNsense LAN IP
-  - routes through firewall as designed
+  - receives 192.168.20.x via DHCP
+  - can ping 192.168.20.1
+  - routes through OPNsense as designed
 
 ---
 
 ## Troubleshooting Highlights (What Was Solved)
 
 ### Issue 1: Devices always pulled 192.168.1.x
-**Symptoms**
+Symptoms
 - Workstation second NIC repeatedly received 192.168.1.x
 - Firewall WAN received 192.168.1.x
 
-**Root Cause**
+Root Cause
 - Switch uplink tagging was inverted:
   - VLAN 10 was not being carried correctly
-  - VLAN 1 tagging/untagging was incorrect
+  - VLAN 1 was mis-tagged/untagged on the uplink
 
-**Fix**
-- Router uplink port configured as:
+Fix
+- Uplink port corrected to:
   - VLAN 1 untagged
   - VLAN 10 tagged
-  - correct PVID
+  - PVID 1
+- Port 7 corrected to:
+  - VLAN 10 untagged
+  - PVID 10
 
 ---
 
 ### Issue 2: OPNsense settings would not persist
-**Symptoms**
+Symptoms
 - Settings reverted after reboot
 - Disk showed 100% usage
 - Filesystem mounted read-only
 
-**Root Cause**
-- VM disk attached to IDE controller
-- Also, earlier attempts booted Live Mode (`root`) instead of installer mode (`installer`)
+Root Cause
+- VM disk attached to IDE controller (unstable for this build)
+- Earlier attempts used root (Live Mode) instead of installer (disk install)
 
-**Fix**
-- Rebuilt OPNsense VM using SATA controller
-- Installed to disk via `installer` user
-- Removed ISO after install and set boot order to Hard Disk
+Fix
+- Rebuilt OPNsense VM using SATA controller and adequate disk size
+- Installed to disk via installer user
+- Removed ISO after install and ensured boot order favored Hard Disk
 
 ---
 
@@ -175,13 +185,13 @@ By the end of Part 1:
 - VLAN behavior is predictable and correct
 - OPNsense is installed to disk and stable
 - WAN/LAN separation is verified
-- Internal network is ready for SIEM ingestion and endpoint onboarding (Part 2)
+- Internal lab network (VLAN 20) is ready for SIEM ingestion and endpoint onboarding (Part 2)
 
 ---
 
 ## Next: Part 2 – SIEM Deployment & Log Ingestion
 
-Part 2 will deploy **Wazuh on Proxmox** and validate end-to-end ingestion from:
+Part 2 will deploy Wazuh on Proxmox and validate end-to-end ingestion from:
 - OPNsense firewall logs
 - Linux endpoints
-- Windows endpoints (as added in later phases)
+- Windows endpoints (added in later phases)

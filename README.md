@@ -2,97 +2,117 @@
 
 ## Description
 
-The **SOC-in-a-Box Homelab** is a fully virtualized, two-system cybersecurity environment designed to simulate real-world **Security Operations Center (SOC)** operations.
+The **SOC-in-a-Box Homelab** is a segmented, multi-system cybersecurity environment designed to simulate real-world **Security Operations Center (SOC)** workflows with an emphasis on **network security, traffic visibility, and centralized monitoring**.
 
-This project demonstrates the design, deployment, and operation of a complete **Blue Team monitoring infrastructure** using **Proxmox**, **OPNsense**, **Wazuh**, and multiple virtual machines that generate realistic network and security events.
+This project focuses on building a realistic **Blue Team defensive lab** from the ground up, emphasizing proper **network architecture, firewall placement, VLAN segmentation, and log visibility** before moving into detection engineering and incident response.
 
-The lab is distributed across two physical systems:
+The lab is intentionally built in phases, with each stage documenting both successful configurations and real-world troubleshooting scenarios encountered during deployment.
 
-- **Proxmox Server** – Hosts the core SOC infrastructure, including OPNsense (firewall/router) and Wazuh (SIEM) within isolated networks.
-- **Main Homelab Workstation** – Runs the operational environment consisting of Windows, Linux, and vulnerable machines to simulate user activity, attacks, and alerts.
+The environment is distributed across two physical systems:
+
+- **Firewall & SOC Infrastructure Host** – Runs the virtualized perimeter firewall and SOC monitoring services.
+- **Main Homelab Workstation** – Hosts attacker, defender, and vulnerable systems used to generate realistic security telemetry.
 
 ---
 
 ## Architecture Overview
 
-- **Firewall / Router:** OPNsense (virtualized on Proxmox)
-- **SIEM:** Wazuh (manager, indexer, and dashboard)
-- **Endpoints & Attack VMs:** Kali Linux, Metasploitable 2, Chronos 1
-- **Windows Environment:** Windows Server 2022 (Active Directory), Windows 10 Client 1 & 2 (domain joined)
-- **Network Monitoring & Analysis:** Zeek, Sysmon, Wireshark
+- **Firewall / Router:** OPNsense (virtualized)
+- **SIEM / Log Platform:** Wazuh (planned integration)
+- **Endpoints & Attack VMs:** Kali Linux, vulnerable Linux targets
+- **Windows Environment:** Windows systems planned for later phases
+- **Network Visibility & Analysis:** Firewall logs, host logs, packet analysis
 
 ---
 
 ## Project Objectives
 
-- Deploy OPNsense within Proxmox to segment and route lab networks
-- Integrate all endpoints with Wazuh for centralized log collection and alerting
-- Simulate attack traffic using Kali, Metasploitable, and Chronos 1
-- Observe detections, tune rules, and document alert workflows
-- Visualize security telemetry through Wazuh dashboards and custom visualizations
+- Design and implement proper VLAN segmentation for a SOC lab
+- Deploy OPNsense as a virtualized perimeter firewall
+- Establish correct WAN/LAN separation and routing
+- Route lab traffic through the firewall for inspection and logging
+- Prepare the environment for centralized SIEM ingestion
+- Document real-world troubleshooting across networking, virtualization, and OS layers
 
 ---
 
 ## Environment Summary
 
-### System 1 — Proxmox Host
-- **OPNsense** – Virtualized firewall and router
-- **Wazuh SIEM** – Manager, Indexer, and Dashboard
+### System 1 — Firewall / SOC Infrastructure Host
+- **OPNsense Firewall**
+  - Virtualized with dual interfaces (WAN + LAN)
+  - WAN bridged into a dedicated Lab VLAN
+  - LAN providing isolated internal lab networks
+- **SIEM Platform (Planned)**
+  - Wazuh Manager, Indexer, and Dashboard
+  - Will ingest firewall and endpoint telemetry
 
 ### System 2 — Main Homelab Workstation
-- **Kali Linux** – Attack simulation and testing
-- **Metasploitable 2** – Vulnerable target for exploit development
-- **Chronos 1** – Additional intentionally vulnerable system
-- **Windows Server 2022** – Active Directory, DNS, DHCP
-- **Windows 10 Client 1** – Domain-joined workstation
-- **Windows 10 Client 2** – Secondary workstation for activity simulation
+- **Kali Linux**
+  - Attack simulation
+  - Traffic generation
+- **Vulnerable Linux Targets**
+  - Exploitation testing
+  - Log and alert generation
+- **Additional Windows & Linux Endpoints** *(Planned)*
 
 ---
 
 ## Technologies Used
 
-- **Virtualization:** Proxmox VE
+- **Virtualization:** VirtualBox, Proxmox (planned expansion)
 - **Firewall & Routing:** OPNsense
-- **SIEM:** Wazuh (Manager, Indexer, Dashboard)
-- **Analysis Tools:** Zeek, Wireshark, Sysmon, Sigma Rules
+- **Networking:** VLANs, managed switch configuration
+- **SIEM:** Wazuh *(integration in progress)*
+- **Analysis Tools:** Packet capture, firewall logging
 - **Operating Systems:**  
-  Windows Server 2022, Windows 10, Kali Linux, Metasploitable 2, Chronos 1
+  OPNsense, Kali Linux, Linux targets, Windows (planned)
 
 ---
 
 ## Project Breakdown
 
-1. **[Part 1 – Infrastructure Setup](part-1_infrastructure-setup/)** *(In Progress)* 
-   Configure Proxmox, deploy OPNsense and Wazuh, and establish internal networks.
+1. **[Part 1 – Infrastructure Setup](part-1_infrastructure-setup/)** *(In Progress)*  
+   - VLAN design and segmentation  
+   - Managed switch configuration  
+   - Virtualized OPNsense firewall deployment  
+   - WAN/LAN separation  
+   - Hypervisor troubleshooting and persistence fixes  
 
-2. **Part 2 – Endpoint & Domain Configuration** *(Planned)* 
-   Build a Windows Active Directory domain, connect clients, and configure vulnerable systems.
+2. **Part 2 – SIEM Deployment & Log Ingestion** *(Planned)*  
+   - Deploy Wazuh  
+   - Ingest firewall and endpoint logs  
+   - Validate log pipelines  
 
-3. **Part 3 – Attack Simulation & Detection** *(Planned)* 
-   Simulate adversarial activity, monitor Wazuh alerts, and analyze security logs.
+3. **Part 3 – Endpoint & Attack Simulation** *(Planned)*  
+   - Simulate adversarial behavior with Kali  
+   - Generate realistic alerts and telemetry  
 
-4. **Part 4 – Visualization & Reporting** *(Planned)* 
-   Create dashboards, correlate alerts, and document incident response workflows.
+4. **Part 4 – Detection, Visualization & Reporting** *(Planned)*  
+   - Alert tuning  
+   - Dashboard creation  
+   - SOC-style investigation workflows  
 
 ---
 
 ## Future Enhancements
 
-- Integrate Elastic Stack or Graylog for multi-SIEM comparison
-- Add Security Onion as a passive NIDS sensor
-- Implement TheHive/Cortex for incident ticketing and enrichment
-- Map detections to MITRE ATT&CK techniques
-- Automate log forwarding using Winlogbeat and Filebeat
+- Full Wazuh SIEM deployment
+- Windows Active Directory lab
+- Additional segmented VLANs (Red / Blue separation)
+- Detection mapping to MITRE ATT&CK
+- Ticketing and incident tracking integration
+- Automation for log ingestion and enrichment
 
 ---
 
 ## Learning Outcomes
 
-- Design and secure virtual SOC infrastructure using Proxmox and OPNsense
-- Deploy and manage a Wazuh SIEM for centralized log analysis
-- Simulate adversarial behavior and detect malicious activity in real time
-- Build detection dashboards and analyze alert pipelines
-- Develop Blue Team reporting and incident documentation skills
+- Design and troubleshoot VLAN-based network segmentation
+- Deploy and manage a virtualized firewall in a SOC context
+- Understand real-world WAN/LAN routing behavior
+- Diagnose hypervisor and storage-layer issues affecting security infrastructure
+- Build a foundation for SIEM-based detection and monitoring
 
 ---
 

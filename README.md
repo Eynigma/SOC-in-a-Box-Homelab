@@ -17,11 +17,11 @@ The environment is distributed across two physical systems:
 
 ## Architecture Overview
 
-- **Firewall / Router:** OPNsense (virtualized)
+- **Firewall / Router:** OPNsense (virtualized on the Main Homelab Workstation in VirtualBox)
 - **SIEM:** Wazuh (planned on Proxmox: manager, indexer, and dashboard)
-- **Endpoints & Attack VMs:** Kali Linux, vulnerable Linux targets
-- **Windows Environment:** Windows systems planned for later phases
-- **Network Visibility & Analysis:** Firewall logs, host logs, packet analysis
+- **Endpoints & Attack VMs:** Kali Linux, vulnerable Linux targets (additional endpoints added in later phases)
+- **Windows Environment:** Windows systems planned for later phases (AD + clients)
+- **Network Visibility & Analysis:** Firewall logs, host telemetry, packet analysis
 
 ---
 
@@ -38,61 +38,67 @@ The environment is distributed across two physical systems:
 
 ## Environment Summary
 
-### System 1 — Firewall / SOC Infrastructure Host
-- **OPNsense Firewall**
-  - Virtualized with dual interfaces (WAN + LAN)
-  - WAN bridged into a dedicated Lab VLAN
-  - LAN providing isolated internal lab networks
-- **SIEM Platform (Planned)**
-  - Wazuh Manager, Indexer, and Dashboard
-  - Will ingest firewall and endpoint telemetry
+### System 1 — Proxmox Host (SOC Services)
+- **Wazuh SIEM** *(Planned for Part 3)*  
+  Manager, Indexer, and Dashboard hosted on Proxmox to centralize visibility across the lab.
+- **SOC Services Expansion** *(Planned)*  
+  Additional security tooling and dashboards as the lab grows.
 
-### System 2 — Main Homelab Workstation
-- **Kali Linux**
-  - Attack simulation
-  - Traffic generation
-- **Vulnerable Linux Targets**
-  - Exploitation testing
-  - Log and alert generation
-- **Additional Windows & Linux Endpoints** *(Planned)*
+### System 2 — Main Homelab Workstation (Operational + Perimeter)
+- **OPNsense Firewall** *(Active / In Use)*  
+  Virtualized in VirtualBox with dual interfaces:
+  - WAN bridged into the Lab ingress VLAN
+  - LAN isolated as an internal network for lab routing and segmentation
+- **Kali Linux**  
+  Attack simulation and traffic generation.
+- **Vulnerable Linux Targets**  
+  Exploitation testing, log and alert generation.
+- **Additional Windows & Linux Endpoints** *(Planned)*  
+  Windows Server + Windows clients added in later phases.
+
 
 ---
 
 ## Technologies Used
 
-- **Virtualization:** VirtualBox, Proxmox (planned expansion)
+- **Virtualization:** VirtualBox, Proxmox VE
 - **Firewall & Routing:** OPNsense
 - **Networking:** VLANs, managed switch configuration
 - **SIEM:** Wazuh (Manager, Indexer, Dashboard)
 - **Analysis Tools:** Packet capture, firewall logging
-- **Operating Systems:**  
-  OPNsense, Kali Linux, Linux targets, Windows (planned)
+- **Operating Systems:** OPNsense, Kali Linux, Linux targets, Windows
 
 ---
 
 ## Project Breakdown
 
-1. **[Part 1 – Infrastructure Setup](part-1_infrastructure-setup/)** *(In Progress)*  
-   - VLAN design and segmentation  
-   - Managed switch configuration  
-   - Virtualized OPNsense firewall deployment  
-   - WAN/LAN separation  
-   - Hypervisor troubleshooting and persistence fixes  
+1. **[Part 1 – Infrastructure Setup](part-1_infrastructure-setup/)** *(In Progress)*
+   - VLAN design and segmentation (foundation)
+   - Managed switch configuration (trunk vs access)
+   - OPNsense VirtualBox deployment (WAN/LAN separation)
+   - Hypervisor troubleshooting and persistence fixes
 
-2. **Part 2 – SIEM Deployment & Log Ingestion** *(Planned)*  
-   - Deploy Wazuh  
-   - Ingest firewall and endpoint logs  
-   - Validate log pipelines  
+2. **Part 2 – Network Segmentation & Firewall Policy** *(Planned)*
+   - Build out segmentation strategy across internal lab VLANs
+   - Configure OPNsense firewall rules (inter-VLAN access control)
+   - Connect VirtualBox VMs to the correct VLANs/networks
+   - Validate routing, DNS, and controlled reachability per segment
 
-3. **Part 3 – Endpoint & Attack Simulation** *(Planned)*  
-   - Simulate adversarial behavior with Kali  
-   - Generate realistic alerts and telemetry  
+3. **Part 3 – Wazuh Deployment & Log Ingestion** *(Planned)*
+   - Deploy Wazuh on Proxmox (manager, indexer, dashboard)
+   - Ingest firewall logs and endpoint telemetry
+   - Validate log pipelines and baseline dashboards
 
-4. **Part 4 – Detection, Visualization & Reporting** *(Planned)*  
-   - Alert tuning  
-   - Dashboard creation  
-   - SOC-style investigation workflows  
+4. **Part 4 – Endpoint & Domain Configuration** *(Planned)*
+   - Build Windows AD environment
+   - Domain-join clients and enable endpoint logging (Sysmon, auditing)
+   - Expand telemetry sources
 
+5. **Part 5 – Attack Simulation, Detection & Reporting** *(Planned)*
+   - Simulate adversarial activity
+   - Monitor alerts, tune detections, and map to MITRE ATT&CK
+   - Document SOC triage workflows, dashboards, and reporting
+  
 ---
 
 ## Future Enhancements

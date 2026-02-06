@@ -57,8 +57,14 @@ Exact VLAN IDs and subnets are documented here for reproducibility.
 
 ## Switch Port Roles
 
-### Evidence (VLAN Membership Table)
+## Switch Port Roles
+
+<details>
+<summary>Evidence: Switch VLAN trunk/access configuration</summary>
+
 ![Switch VLAN membership showing trunk and access behavior](assets/SwitchVLANsettings.png)
+
+</details>
 
 ### Uplink Port to Router (Trunk)
 - Port: 1
@@ -86,11 +92,16 @@ Exact VLAN IDs and subnets are documented here for reproducibility.
 
 ## OPNsense VirtualBox Deployment
 
-### Evidence
-![VirtualBox adapters](assets/vbox_opnsense_adapter1.png)
-![VirtualBox adapters](assets/vbox_opnsense_adapter2.png)
+<details>
+<summary>Evidence: OPNsense VM adapters and SATA storage configuration</summary>
+
+![VirtualBox adapter 1](assets/vbox_opnsense_adapter1.png)
+
+![VirtualBox adapter 2](assets/vbox_opnsense_adapter2.png)
+
 ![SATA controller](assets/vbox_opnsense_storage_sata.png)
 
+</details>
 
 ### VM Hardware (Required for Stability)
 - Disk Controller: SATA (AHCI)

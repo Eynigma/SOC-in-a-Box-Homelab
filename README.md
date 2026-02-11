@@ -72,7 +72,7 @@ The environment is distributed across two physical systems:
 
 ## Project Breakdown
 
-1. **[Part 1 – Infrastructure Setup](part-1_infrastructure-setup/)** *(In Progress)*
+1. **[Part 1 – Infrastructure Setup](part-1_infrastructure-setup/)**
    - VLAN design and segmentation (foundation)
    - Managed switch configuration (trunk vs access)
    - OPNsense VirtualBox deployment (WAN/LAN separation)

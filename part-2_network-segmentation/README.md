@@ -19,16 +19,23 @@ Instead of relying on hypervisor VLAN tagging, segmentation is implemented using
 
 This approach creates clear security boundaries, simplifies troubleshooting, and mirrors enterprise firewall zone design.
 
+<details>
+<summary>Show VirtualBox screenshots (OPNsense adapters)</summary>
+
+![VirtualBox OPNsense adapters for zone-based segmentation](assets/vbox_opnsense_adapters_part2.png)
+
+</details>
+
 ---
 
 ## Segments & Addressing
 
-| Segment      | Purpose                         | Subnet              | Gateway          |
-|-------------|----------------------------------|---------------------|------------------|
-| WAN         | Upstream / internet              | 192.168.10.0/24     | (DHCP upstream)  |
-| LAN         | Admin / Operator (Kali)          | 192.168.20.0/24     | 192.168.20.1     |
-| CYBER_RANGE | Vulnerable targets (Chronos, MSF)| 192.168.30.0/24     | 192.168.30.1     |
-| AD_LAB      | AD + Windows endpoints (planned) | 192.168.40.0/24     | 192.168.40.1     |
+| Segment      | Purpose                          | Subnet            | Gateway         |
+|-------------|-----------------------------------|-------------------|-----------------|
+| WAN         | Upstream / internet               | 192.168.10.0/24   | (DHCP upstream) |
+| LAN         | Admin / Operator (Kali)           | 192.168.20.0/24   | 192.168.20.1    |
+| CYBER_RANGE | Vulnerable targets (Chronos, MSF) | 192.168.30.0/24   | 192.168.30.1    |
+| AD_LAB      | AD + Windows endpoints (planned)  | 192.168.40.0/24   | 192.168.40.1    |
 
 ---
 
@@ -52,6 +59,13 @@ This approach creates clear security boundaries, simplifies troubleshooting, and
   - LAN: em1 (192.168.20.1/24)
   - CYBER_RANGE: em2 (192.168.30.1/24)
   - AD_LAB: em3 (192.168.40.1/24)
+
+<details>
+<summary>Show OPNsense screenshots (Interface Assignments)</summary>
+
+![OPNsense interface assignments (WAN/LAN/CYBER_RANGE/AD_LAB)](assets/opnsense_interface_assignments.png)
+
+</details>
 
 ### VirtualBox Networks (Internal Networks)
 - LAN: `LAB_LAN` (admin/operator zone)
@@ -92,6 +106,13 @@ Confirmed leases and segmentation behavior:
 - Chronos: 192.168.30.114 (CYBER_RANGE)
 - Metasploitable: 192.168.30.126 (CYBER_RANGE)
 
+<details>
+<summary>Show OPNsense screenshots (DHCPv4 leases)</summary>
+
+![DHCPv4 leases showing LAN + CYBER_RANGE clients](assets/opnsense_dhcp_leases.png)
+
+</details>
+
 ---
 
 ## Firewall Policy (Key Deliverable)
@@ -111,6 +132,13 @@ Confirmed leases and segmentation behavior:
 - CYBER_RANGE net → any (used for initial validation; can be restricted later to DNS/HTTP/HTTPS)
 
 > Important note: Rule order matters. The lateral movement block must sit ABOVE any broad “allow outbound” rule, or it will never trigger.
+
+<details>
+<summary>Show OPNsense screenshots (CYBER_RANGE firewall rules)</summary>
+
+![CYBER_RANGE rules with lateral block + logging](assets/opnsense_cyber_range_rules.png)
+
+</details>
 
 ---
 
@@ -159,4 +187,3 @@ Part 3 will focus on generating SOC telemetry and pushing it into centralized mo
 - Add endpoint agents (Linux + Windows)
 - Simulate attacks from Kali → CYBER_RANGE and validate detections
 - Begin tuning alerts + building investigation workflow
-

@@ -78,7 +78,7 @@ The environment is distributed across two physical systems:
    - OPNsense VirtualBox deployment (WAN/LAN separation)
    - Hypervisor troubleshooting and persistence fixes
 
-2. **Part 2 – Network Segmentation & Firewall Policy** *(Planned)*
+2. **[Part 2 – Network Segmentation & Firewall Policy](part-2_network-segmentation/)**
    - Build out segmentation strategy across internal lab VLANs
    - Configure OPNsense firewall rules (inter-VLAN access control)
    - Connect VirtualBox VMs to the correct VLANs/networks

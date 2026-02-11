@@ -22,7 +22,7 @@ This approach creates clear security boundaries, simplifies troubleshooting, and
 <details>
 <summary>Show VirtualBox screenshots (OPNsense adapters)</summary>
 
-![VirtualBox OPNsense adapters for zone-based segmentation](assets/vbox_opnsense_adapters_part2.png)
+![VirtualBox OPNsense adapters for zone-based segmentation](assets/vbox_opnsense_adapters.png)
 
 </details>
 

@@ -119,6 +119,8 @@ Resolution:
 
 Segmentation is now stable across reboots.
 
+![OPNsense interface assignments (final stable state)](assets/opnsense_interface_assignments.png)
+
 ---
 
 ### 2) DHCP Per Zone

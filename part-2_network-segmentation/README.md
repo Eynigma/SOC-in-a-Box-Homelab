@@ -1,10 +1,12 @@
-# Part 2 — Network Segmentation & Firewall Policy
+# Part 2 — Network Segmentation & Firewall Policy 
 
 ## Description
 
-Part 2 focuses on implementing true zone-based segmentation inside the SOC-in-a-Box Homelab by separating lab networks into dedicated firewall interfaces and enforcing controlled reachability with OPNsense firewall policy.
+Part 2 focuses on implementing true zone-based segmentation inside the SOC-in-a-Box Homelab using OPNsense as a multi-interface firewall.
 
-This phase validates that routing, DHCP, and reachability behave correctly per segment, and that lateral movement paths can be blocked and logged for future SIEM ingestion.
+This phase establishes deterministic routing, stable DHCP per segment, enforced inter-zone access control, and controlled egress filtering. It validates that lateral movement paths can be blocked and logged — preparing the environment for SIEM ingestion in Part 3.
+
+This is where the homelab transitions from a flat test network into an enterprise-style zone-based architecture.
 
 ---
 
@@ -13,11 +15,16 @@ This phase validates that routing, DHCP, and reachability behave correctly per s
 Instead of relying on hypervisor VLAN tagging, segmentation is implemented using one OPNsense interface per zone:
 
 - WAN (upstream)
-- LAN (admin / operator network)
+- LAN (attacker / operator network)
 - CYBER_RANGE (vulnerable targets)
-- AD_LAB (Windows domain segment - staged for later)
+- AD_LAB (Windows domain segment)
 
-This approach creates clear security boundaries, simplifies troubleshooting, and mirrors enterprise firewall zone design.
+This approach:
+
+- Creates clear Layer 3 boundaries
+- Simplifies troubleshooting
+- Enforces explicit policy control
+- Mirrors enterprise firewall zone design
 
 <details>
 <summary>Show VirtualBox screenshots (OPNsense adapters)</summary>
@@ -30,86 +37,107 @@ This approach creates clear security boundaries, simplifies troubleshooting, and
 
 ## Segments & Addressing
 
-| Segment      | Purpose                          | Subnet            | Gateway         |
-|-------------|-----------------------------------|-------------------|-----------------|
-| WAN         | Upstream / internet               | 192.168.10.0/24   | (DHCP upstream) |
-| LAN         | Admin / Operator (Kali)           | 192.168.20.0/24   | 192.168.20.1    |
-| CYBER_RANGE | Vulnerable targets (Chronos, MSF) | 192.168.30.0/24   | 192.168.30.1    |
-| AD_LAB      | AD + Windows endpoints (planned)  | 192.168.40.0/24   | 192.168.40.1    |
+| Segment      | Purpose                              | Subnet            | Gateway         |
+|-------------|---------------------------------------|-------------------|-----------------|
+| WAN         | Upstream / Internet                   | 192.168.10.0/24   | (DHCP upstream) |
+| LAN         | Attacker / Operator (Kali)            | 192.168.20.0/24   | 192.168.20.1    |
+| CYBER_RANGE | Vulnerable targets (Chronos, MSF)     | 192.168.30.0/24   | 192.168.30.1    |
+| AD_LAB      | AD + Windows endpoints (staged)       | 192.168.40.0/24   | 192.168.40.1    |
 
 ---
 
 ## Objectives
 
-- Build segmentation strategy across internal lab zones
-- Assign OPNsense interfaces for LAN / CYBER_RANGE / AD_LAB
-- Configure DHCP per segment
-- Connect VirtualBox VMs to the correct Internal Networks
-- Enforce inter-zone access control (especially lateral movement blocking)
-- Validate routing, DNS, and controlled reachability
+- Implement zone-based segmentation across lab networks
+- Assign persistent OPNsense interfaces (WAN/LAN/CYBER_RANGE/AD_LAB)
+- Enable DHCP per zone
+- Connect VMs to correct VirtualBox Internal Networks
+- Enforce inter-zone access control
+- Implement controlled outbound filtering
+- Log denied lateral movement for SOC visibility
+- Validate stability across reboots
 
 ---
 
 ## Environment Summary
 
 ### Firewall / Router
-- OPNsense (virtualized)
+- OPNsense (VirtualBox)
 - Interfaces:
-  - WAN: em0
-  - LAN: em1 (192.168.20.1/24)
-  - CYBER_RANGE: em2 (192.168.30.1/24)
-  - AD_LAB: em3 (192.168.40.1/24)
+  - WAN → em0 (DHCP upstream)
+  - LAN → em1 (192.168.20.1/24)
+  - CYBER_RANGE → em2 (192.168.30.1/24)
+  - AD_LAB → em3 (192.168.40.1/24)
+
+> Important: Interface order was explicitly validated to prevent adapter drift across reboots. WAN remains Adapter 1 to ensure persistent mapping.
 
 <details>
 <summary>Show OPNsense screenshots (Interface Assignments)</summary>
 
-![OPNsense interface assignments (WAN/LAN/CYBER_RANGE/AD_LAB)](assets/opnsense_interface_assignments.png)
+![OPNsense interface assignments](assets/opnsense_interface_assignments.png)
 
 </details>
 
+---
+
 ### VirtualBox Networks (Internal Networks)
-- LAN: `LAB_LAN` (admin/operator zone)
-- CYBER_RANGE: `CYBER_RANGE` (vulnerable zone)
-- AD_LAB: `AD_LAB` (Windows zone, staged)
+
+- `LAB_LAN` → LAN
+- `CYBER_RANGE` → CYBER_RANGE
+- `AD_LAB` → AD_LAB
+
+Each zone uses a dedicated Internal Network to simulate physical segmentation.
+
+---
 
 ### VMs
-- Kali (LAN) — operator / attack simulation
-- Chronos (CYBER_RANGE) — vulnerable target
-- Metasploitable (CYBER_RANGE) — vulnerable target
+
+- Kali (LAN) — attacker / operator node
+- Chronos (CYBER_RANGE) — vulnerable Linux target
+- Metasploitable (CYBER_RANGE) — vulnerable Linux target
 
 ---
 
 ## Implementation Steps
 
-### 1) Create Dedicated Firewall Interfaces (Zone Model)
-- Added additional VirtualBox adapters to OPNsense (one per zone)
-- Assigned interfaces in OPNsense:
-  - LAN → em1
-  - CYBER_RANGE → em2
-  - AD_LAB → em3
-- Set static gateways per zone
+### 1) Interface Assignment & Persistence Fix
 
-### 2) Enable DHCP Per Zone
-- Enabled DHCP on LAN to support Kali/operator provisioning
-- Enabled DHCP on CYBER_RANGE to support vulnerable target provisioning
-- (AD_LAB DHCP staged for later depending on AD design)
+Initial segmentation caused DHCP failure (169.254.x.x on Kali).
 
-### 3) Connect VMs to the Correct Zone
-- Kali connected to `LAB_LAN` (LAN zone)
-- Chronos connected to `CYBER_RANGE` (CYBER_RANGE zone)
-- Metasploitable connected to `CYBER_RANGE` (CYBER_RANGE zone)
+Root Cause:
+VirtualBox adapter order mismatch caused WAN/LAN interface drift.
 
-### 4) Validate IP Leasing & Reachability
-Confirmed leases and segmentation behavior:
+Resolution:
+- Powered off OPNsense
+- Reordered adapters in VirtualBox:
+  - Adapter 1 → WAN (Bridged)
+  - Adapter 2 → LAN (Internal)
+  - Adapter 3 → CYBER_RANGE
+  - Adapter 4 → AD_LAB
+- Reassigned interfaces in OPNsense console
+- Rebooted and validated persistence
 
-- Kali: 192.168.20.199 (LAN)
-- Chronos: 192.168.30.114 (CYBER_RANGE)
-- Metasploitable: 192.168.30.126 (CYBER_RANGE)
+Segmentation is now stable across reboots.
+
+---
+
+### 2) DHCP Per Zone
+
+Enabled DHCP:
+
+- LAN → supports Kali
+- CYBER_RANGE → supports Chronos + Metasploitable
+
+Validated leases:
+
+- Kali → 192.168.20.x
+- Chronos → 192.168.30.x
+- Metasploitable → 192.168.30.x
 
 <details>
-<summary>Show OPNsense screenshots (DHCPv4 leases)</summary>
+<summary>Show DHCP leases</summary>
 
-![DHCPv4 leases showing LAN + CYBER_RANGE clients](assets/opnsense_dhcp_leases.png)
+![DHCP leases](assets/opnsense_dhcp_leases.png)
 
 </details>
 
@@ -117,73 +145,133 @@ Confirmed leases and segmentation behavior:
 
 ## Firewall Policy (Key Deliverable)
 
-### CYBER_RANGE Rules (Minimum Viable Secure Policy)
+### CYBER_RANGE Secure Policy
 
-1) Allow DHCP to firewall  
-- CYBER_RANGE net → This Firewall (UDP/67)
+The CYBER_RANGE zone represents exploitable hosts.  
+Policy is designed for containment + controlled egress.
 
-2) Allow ping to firewall (optional but useful for testing)  
-- CYBER_RANGE net → This Firewall (ICMP)
+Rule Order (Top → Bottom):
 
-3) Block lateral movement to LAN (LOG ENABLED) ✅  
-- CYBER_RANGE net → LAN net (Block + Log)
+1️⃣ Allow DHCP to firewall  
+- CYBER_RANGE → This Firewall (UDP/67)
 
-4) Allow CYBER_RANGE outbound  
-- CYBER_RANGE net → any (used for initial validation; can be restricted later to DNS/HTTP/HTTPS)
+2️⃣ Allow ICMP to firewall  
+- CYBER_RANGE → This Firewall (ICMP)
 
-> Important note: Rule order matters. The lateral movement block must sit ABOVE any broad “allow outbound” rule, or it will never trigger.
+3️⃣ Block CYBER_RANGE → LAN (LOG ENABLED)  
+- Prevents pivot into attacker zone
+
+4️⃣ Block CYBER_RANGE → AD_LAB (LOG ENABLED)  
+- Prevents cross-zone lateral movement
+
+5️⃣ Allow DNS outbound (53)  
+- Required for realistic host behavior
+
+6️⃣ Allow HTTP/HTTPS outbound (80/443)  
+- Simulates normal web + C2 over TLS
+
+7️⃣ Block everything else (LOG ENABLED)  
+- Enforces controlled egress filtering
+
+This creates enterprise-style outbound restrictions while preserving realistic attack simulation.
 
 <details>
-<summary>Show OPNsense screenshots (CYBER_RANGE firewall rules)</summary>
+<summary>Show CYBER_RANGE firewall rules</summary>
 
-![CYBER_RANGE rules with lateral block + logging](assets/opnsense_cyber_range_rules.png)
+![CYBER_RANGE rules](assets/opnsense_cyber_range_rules.png)
 
 </details>
 
 ---
 
-## Troubleshooting Notes (Real-World Issues Encountered)
+## Controlled Egress Model
 
-- Kali received a 169.254.x.x address (DHCP failure)
-  - Root cause: LAN DHCP service needed to be restored/enabled after segmentation changes
-  - Fix: re-enabled / reset DHCPv4 on LAN
+Instead of allowing unrestricted outbound access, CYBER_RANGE is limited to:
 
-- CYBER_RANGE targets initially could not reach the firewall IP (192.168.30.1)
-  - Root cause: missing explicit rule allowing CYBER_RANGE to talk to “This Firewall”
-  - Fix: added minimal rules (DHCP + ICMP to firewall)
+- DNS (53)
+- HTTP (80)
+- HTTPS (443)
 
-- “Block lateral” rule did not work at first
-  - Root cause: it was placed BELOW a broad allow rule (first-match firewall behavior)
-  - Fix: moved block rule above allow rule and enabled logging
+All other outbound ports are denied and logged.
+
+This simulates:
+
+- Malware beaconing over HTTPS
+- Payload downloads
+- DNS resolution behavior
+- Blocked C2 over uncommon ports
+
+This also generates high-quality telemetry for SIEM ingestion.
+
+---
+
+## LAN Policy (Attacker Zone)
+
+LAN remains permissive outbound.
+
+Kali must be able to:
+
+- Reach CYBER_RANGE
+- Reach AD_LAB
+- Reach Internet
+
+This simulates an established attacker foothold.
+
+IPv6 rules were reviewed to prevent unintended bypass.
+
+---
+
+## Troubleshooting Notes (Real Issues Encountered)
+
+- DHCP failure after segmentation
+  - Caused by interface reassignment drift
+  - Fixed by reordering adapters + reassignment
+
+- Block rules not triggering
+  - Caused by rule order (first-match firewall logic)
+  - Fixed by moving block rules above allow rules
+
+- CYBER_RANGE lacked firewall reachability
+  - Required explicit rule allowing traffic to "This Firewall"
+
+These issues reinforced the importance of:
+
+- Interface persistence
+- Rule order discipline
+- Clear zone definitions
 
 ---
 
 ## Validation Checklist
 
-- [x] Kali receives 192.168.20.x from LAN DHCP  
-- [x] CYBER_RANGE targets receive 192.168.30.x from CYBER_RANGE DHCP  
-- [x] Kali can ping CYBER_RANGE gateway (192.168.30.1)  
-- [x] CYBER_RANGE cannot reach LAN once block rule is enabled  
-- [x] Block events appear in OPNsense Live View logs  
-- [x] Segmentation is stable and repeatable across reboots
+- [x] Kali receives LAN DHCP
+- [x] CYBER_RANGE hosts receive DHCP
+- [x] Interface mapping survives reboot
+- [x] CYBER_RANGE cannot pivot into LAN
+- [x] CYBER_RANGE cannot pivot into AD_LAB
+- [x] Only 53/80/443 allowed outbound
+- [x] Blocked attempts appear in Live View logs
+- [x] Segmentation behavior is deterministic
 
 ---
 
 ## Learning Outcomes
 
-- Implemented zone-based segmentation using firewall interfaces (enterprise model)
-- Reinforced first-match firewall rule behavior and the importance of rule order
-- Distinguished Layer 2 wiring issues vs Layer 3 policy issues during troubleshooting
-- Produced clean, loggable lateral-movement denial events for future SIEM ingestion
+- Implemented enterprise-style zone-based segmentation
+- Enforced controlled outbound filtering (egress policy)
+- Validated first-match firewall behavior
+- Generated actionable deny logs for future SIEM ingestion
+- Diagnosed interface drift and DHCP failure in a virtualized firewall environment
+- Distinguished hypervisor wiring issues from Layer 3 policy issues
 
 ---
 
 ## Next (Part 3)
 
-Part 3 will focus on generating SOC telemetry and pushing it into centralized monitoring:
+Part 3 will focus on SOC telemetry:
 
-- Deploy SIEM tooling (Wazuh planned)
-- Ingest OPNsense firewall logs
-- Add endpoint agents (Linux + Windows)
-- Simulate attacks from Kali → CYBER_RANGE and validate detections
-- Begin tuning alerts + building investigation workflow
+- Forward OPNsense firewall logs to SIEM (Wazuh planned)
+- Deploy endpoint agents (Linux + Windows)
+- Simulate exploitation from Kali → CYBER_RANGE
+- Capture lateral movement attempts
+- Build detection + investigation workflow

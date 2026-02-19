@@ -210,12 +210,6 @@ This simulates:
 
 This also generates high-quality telemetry for SIEM ingestion.
 
-<details>
-<summary>Show Firewall Log</summary>
-![Firewall log showing blocked lateral movement attempt](assets/lateral_block_log.png)
-
-</details>
-
 ---
 
 ## LAN Policy (Attacker Zone)

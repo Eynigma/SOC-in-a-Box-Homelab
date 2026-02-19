@@ -119,7 +119,12 @@ Resolution:
 
 Segmentation is now stable across reboots.
 
+<details>
+<summary>Show OPNsense Interface Assignment</summary>
+  
 ![OPNsense interface assignments (final stable state)](assets/opnsense_interface_assignments.png)
+
+</details>
 
 ---
 
@@ -204,6 +209,12 @@ This simulates:
 - Blocked C2 over uncommon ports
 
 This also generates high-quality telemetry for SIEM ingestion.
+
+<details>
+<summary>Show Firewall Log</summary>
+![Firewall log showing blocked lateral movement attempt](assets/lateral_block_log.png)
+
+</details>
 
 ---
 
